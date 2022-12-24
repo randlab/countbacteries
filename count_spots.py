@@ -8,6 +8,7 @@ def count_spots(    bgr_img:np.array,
                     s_range:List[float] = np.array((0.4,1)),
                     v_range:List[float] = np.array((0,1)),
                     kernel: np.array = np.ones((10,10),np.uint8),
+                    kernel_clean: np.array = np.ones((20,20),np.uint8),
                 ):
     """Counts the number of bacterial spots in a picture
 
@@ -17,6 +18,7 @@ def count_spots(    bgr_img:np.array,
         s_range (List[float], optional): saturation range. Defaults to np.array((0.4,1)).
         v_range (List[float], optional): value range. Defaults to np.array((0,1)).
         kernel (np.array, optional): _description_. Defaults to np.ones((10,10),np.uint8).
+        kernel_clean (np.array, optional): _description_. Defaults to np.ones((10,10),np.uint8).
 
     Returns:
         _type_: _description_
@@ -28,6 +30,9 @@ def count_spots(    bgr_img:np.array,
     mask = smask&hmask&vmask
     
     erosion = cv2.erode(mask.astype(np.uint8),kernel,iterations = 1)
+    erosion = cv2.morphologyEx(erosion, cv2.MORPH_OPEN, kernel_clean)
+    erosion = cv2.morphologyEx(erosion, cv2.MORPH_CLOSE, kernel_clean)
+
     labels, count = measure.label(erosion, connectivity=2, return_num=True)
     return count, labels
 
